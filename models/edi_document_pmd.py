@@ -23,11 +23,11 @@ class ProductMasterDataIterator(object):
     def __iter__(self):
         # This is a one-shot iterator, since we cannot cleanly rewind
         # the underlying reader.
-        for (material_number, material_description, weight, length, width,
+        for (product_code, product_description, weight, length, width,
              height, serial) in self.reader:
             # Construct result
-            yield (material_number,
-                   material_description,
+            yield (product_code,
+                   product_description,
                    (float(weight) if weight else 0.0),
                    ((float(length) * float(width) * float(height) / 1000000.0)
                     if length and width and height else 0.0),
@@ -47,6 +47,9 @@ class EdiDocumentPmd(models.AbstractModel):
     @api.model
     def _prepare_chunk(self, doc, chunk):
         """Prepare document chunk"""
+        # active_test=False in context disables the automatic addition of
+        # ('active', '=', True) to a search domain, so inactive products will
+        # be included by default
         Product = self.env['product.product'].with_context(active_test=False)
         Template = self.env['product.template'].with_context(active_test=False)
         EdiProduct = self.env['udes.edi.record.product']
@@ -61,12 +64,12 @@ class EdiDocumentPmd(models.AbstractModel):
         templates.mapped('name')
 
         # Create EDI records
-        for (material_number, material_description, weight, volume, tracking) in chunk:
+        for (product_code, product_description, weight, volume, tracking) in chunk:
             # Skip unchanged products
-            product = products_by_code.get(material_number)
+            product = products_by_code.get(product_code)
             if (product and product.active and
-                (material_number == product.barcode) and
-                (material_description == product.name) and
+                (product_code == product.barcode) and
+                (product_description == product.name) and
                 (float_compare(weight, product.weight,
                                precision_rounding=ROUNDING) == 0) and
                 (float_compare(volume, product.volume,
@@ -77,9 +80,9 @@ class EdiDocumentPmd(models.AbstractModel):
             # Create EDI product record
             EdiProduct.create({
                 'doc_id': doc.id,
-                'name': material_number,
+                'name': product_code,
                 'product_id': product and product.id,
-                'description': material_description,
+                'description': product_description,
                 'weight': weight,
                 'volume': volume,
                 'tracking': tracking,
