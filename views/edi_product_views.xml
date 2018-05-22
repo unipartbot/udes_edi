@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+<odoo>
+  <data>
+
+    <!-- Product EDI record form view -->
+    <record id="edi_product_form" model="ir.ui.view">
+      <field name="name">edi.record.product.form</field>
+      <field name="model">udes.edi.record.product</field>
+      <field name="arch" type="xml">
+		<form string="Product">
+		  <sheet>
+			<div class="oe_title">
+			  <label for="name" class="oe_edit_only"/>
+			  <h1>
+				<field name="name"/>
+			  </h1>
+			</div>
+			<group>
+			  <group>
+				<field name="doc_id"/>
+				<field name="product_id"/>
+				<field name="description"/>
+			  </group>
+			  <group>
+				<field name="weight"/>
+				<field name="volume"/>
+				<field name="tracking"/>
+			  </group>
+			</group>
+		  </sheet>
+		</form>
+      </field>
+    </record>
+
+    <!-- Product EDI record tree view -->
+    <record id="edi_product_tree" model="ir.ui.view">
+      <field name="name">edi.record.product.tree</field>
+      <field name="model">udes.edi.record.product</field>
+      <field name="arch" type="xml">
+		<tree string="Products">
+		  <field name="name"/>
+		  <field name="doc_id"/>
+		  <field name="product_id"/>
+		  <field name="description"/>
+		  <field name="weight"/>
+		  <field name="volume"/>
+		  <field name="tracking"/>
+		</tree>
+      </field>
+    </record>
+
+    <!-- Product EDI record search filter -->
+    <record id="udes_edi_product_search" model="ir.ui.view">
+      <field name="name">edi.record.product.search</field>
+      <field name="model">udes.edi.record.product</field>
+      <field name="arch" type="xml">
+	<search string="Search Product">
+	  <field name="name" string="Product"
+		 filter_domain="['|',('name','ilike',self),
+				     ('description','ilike',self)]"/>
+	  <field name="doc_id"/>
+	  <field name="product_id"/>
+	  <group>
+	    <filter string="Document" name="by_doc_id" domain="[]"
+		    context="{'group_by':'doc_id'}"/>
+	    <filter string="Product" name="by_product_id" domain="[]"
+		    context="{'group_by':'product_id'}"/>
+	  </group>
+	</search>
+      </field>
+    </record>
+
+    <!-- Product EDI record action window -->
+    <record id="udes_edi_product_action" model="ir.actions.act_window">
+      <field name="name">Products</field>
+      <field name="type">ir.actions.act_window</field>
+      <field name="res_model">udes.edi.record.product</field>
+      <field name="view_type">form</field>
+      <field name="view_id" ref="edi_product_tree"/>
+      <field name="search_view_id" ref="udes_edi_product_search"/>
+      <field name="context">{'create': False}</field>
+    </record>
+
+    <!-- Product EDI record menu item -->
+    <menuitem id="udes_edi_product_menu" action="udes_edi_product_action"
+	      parent="edi.record_menu" sequence="10"/>
+
+    <!-- Product EDI records field -->
+    <record id="product_document_form" model="ir.ui.view">
+      <field name="name">edi.document.product.form</field>
+      <field name="model">edi.document</field>
+      <field name="inherit_id" ref="edi.document_form"/>
+      <field name="arch" type="xml">
+	<xpath expr="//notebook[@name='records']" position="inside">
+	  <page name="product" string="Products"
+		attrs="{'invisible':['|', ('prepare_date','=',False),
+					  ('x_use_product','=',False)]}">
+	    <field name="x_use_product" invisible="1"/>
+	    <field name="x_product_ids" readonly="1">
+	      <tree>
+		<field name="name"/>
+		<field name="product_id"/>
+		<field name="description"/>
+		<field name="weight"/>
+		<field name="volume"/>
+		<field name="tracking"/>
+	      </tree>
+	    </field>
+	  </page>
+	</xpath>
+      </field>
+    </record>
+
+  </data>
+</odoo>

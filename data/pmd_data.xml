@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<odoo>
+  <data>
+    <!-- Product EDI record type -->
+    <record id="edi_record_type_product" model="edi.record.type">
+      <field name="name">Product</field>
+      <field name="model_id" ref="model_udes_edi_record_product"/>
+      <field name="sequence">10</field>
+    </record>
+
+    <!-- Product Master Data EDI document sequence -->
+    <record id="sequence_pmd" model="ir.sequence">
+      <field name="name">Product Master Data</field>
+      <field name="prefix">PMD</field>
+      <field name="padding" eval="5"/>
+    </record>
+
+    <!-- Product Master Data EDI document type -->
+    <record id="edi_document_type_pmd" model="edi.document.type">
+      <field name="name">Product Master Data</field>
+      <field name="model_id" ref="model_udes_edi_document_pmd"/>
+      <field name="sequence">10</field>
+      <field name="sequence_id" ref="sequence_pmd"/>
+      <field name="rec_type_ids"
+	     eval="[(6, False, [ref('edi_record_type_product')])]"/>
+    </record>
+  </data>
+</odoo>
